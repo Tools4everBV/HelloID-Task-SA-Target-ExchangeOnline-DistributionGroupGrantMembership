@@ -2,13 +2,13 @@
 ########################################################################
 # Form mapping
 $formObject = @{
-    Identity   = $form.Name
+    GroupIdentity   = $form.GroupIdentity
     UsersToAdd = $form.UsersToAdd.Name
 }
 
 [bool]$IsConnected = $false
 try {
-    Write-Information "Executing ExchangeOnline action: [DistributionGroupGrantMembership] for: [$($formObject.Identity)]"
+    Write-Information "Executing ExchangeOnline action: [DistributionGroupGrantMembership] for: [$($formObject.GroupIdentity)]"
 
     $null = Import-Module ExchangeOnlineManagement
 
@@ -19,7 +19,7 @@ try {
 
     foreach ($user in $formObject.usersToAdd) {
         $AddDistributionGroupMember = @{
-            Identity                        = $formObject.Identity
+            Identity                        = $formObject.GroupIdentity
             Member                          = $user
             BypassSecurityGroupManagerCheck = $true
         }
@@ -29,26 +29,26 @@ try {
             $auditLog = @{
                 Action            = 'GrantMembership'
                 System            = 'ExchangeOnline'
-                TargetIdentifier  = $formObject.Identity
-                TargetDisplayName = $formObject.Identity
-                Message           = "ExchangeOnline action: [DistributionGroupGrantMembership] [$($user)] to group [$($formObject.Identity)] executed successfully"
+                TargetIdentifier  = $formObject.GroupIdentity
+                TargetDisplayName = $formObject.GroupIdentity
+                Message           = "ExchangeOnline action: [DistributionGroupGrantMembership] [$($user)] to group [$($formObject.GroupIdentity)] executed successfully"
                 IsError           = $false
             }
             Write-Information -Tags 'Audit' -MessageData $auditLog
-            Write-Information "ExchangeOnline action: [DistributionGroupGrantMembership] [$($user)] to group [$($formObject.Identity)] executed successfully"
+            Write-Information "ExchangeOnline action: [DistributionGroupGrantMembership] [$($user)] to group [$($formObject.GroupIdentity)] executed successfully"
 
         } catch {
             if ( $_.Exception.ErrorRecord.CategoryInfo.Reason -eq 'MemberAlreadyExistsException') {
                 $auditLog = @{
                     Action            = 'GrantMembership'
                     System            = 'ExchangeOnline'
-                    TargetIdentifier  = $formObject.Identity
-                    TargetDisplayName = $formObject.Identity
-                    Message           = "ExchangeOnline action: [DistributionGroupGrantMembership][$($user)] to group [$($formObject.Identity)] Already Exists"
+                    TargetIdentifier  = $formObject.GroupIdentity
+                    TargetDisplayName = $formObject.GroupIdentity
+                    Message           = "ExchangeOnline action: [DistributionGroupGrantMembership][$($user)] to group [$($formObject.GroupIdentity)] Already Exists"
                     IsError           = $false
                 }
                 Write-Information -Tags 'Audit' -MessageData $auditLog
-                Write-Information "ExchangeOnline action: [DistributionGroupGrantMembership][$($user)] to group [$($formObject.Identity)] Already Exists"
+                Write-Information "ExchangeOnline action: [DistributionGroupGrantMembership][$($user)] to group [$($formObject.GroupIdentity)] Already Exists"
                 Write-Information "Warning message: $($_.Exception.Message)"
                 continue
             }
